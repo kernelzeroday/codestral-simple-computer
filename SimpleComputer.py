@@ -24,6 +24,7 @@ class SimpleCPU:
         self.memory[instruction_addr] = instruction
         opcode, regA, regB, dest_reg = self.decode(self.fetch(instruction_addr))
         self.execute(opcode, regA, regB, dest_reg)
+
 class SimpleGPU:
     def __init__(self, width=640, height=480):
         self.width = width
@@ -40,6 +41,7 @@ class SimpleGPU:
     def display(self):
         for row in self.frame_buffer:
             print(" ".join([f"\033[48;2;{r};{g};{b}m  \033[0m" for r, g, b in row]))
+
 class SimpleMMU:
     def __init__(self, memory_size=1024):
         self.memory = [0] * memory_size  # Initialize memory with all zeros
@@ -64,7 +66,7 @@ class SimpleMMU:
             self.memory[i] = 0  # Mark the memory as free
         self.free_memory += size            
 
-class simpleFloppyDrive:
+class SimpleFloppyDrive:
     def __init__(self, mmu):
         self.mmu = mmu  # Reference to the MMU object
         self.current_file = None  # The currently loaded file
@@ -90,9 +92,93 @@ class simpleFloppyDrive:
             return
         try:
             file_size = 1024  # Replace with the actual file size
-            self.mmu.deallocate(start=self.current_start_address, size=(self.current_start_address + file_size - 1))
+            self.mmu.deallocate(start=self.current_start_address, size=file_size)
             # Simulate unloading the file from memory (in a real scenario, this would involve freeing up the memory)
             self.current_file = None
             self.current_start_address = None
         except Exception as e:
             print(f"Error unloading file: {e}")
+
+class SimpleHardDrive:
+    def __init__(self, mmu):
+        self.mmu = mmu  # Reference to the MMU object
+        self.current_partition = None  # The currently loaded partition on the hard drive
+        self.current_start_address = None  # The start address of the current partition in memory
+
+    def load(self, partition, file_size):
+        """Load a partition from the hard drive into memory."""
+        if self.current_partition is not None:
+            print("Error: A partition is already loaded.")
+            return
+        try:
+            start_address = self.mmu.allocate(file_size)
+            # Simulate loading the file into memory (in a real scenario, this would involve reading from the hard drive)
+            self.current_partition = partition  # Replace with actual partition name or identifier
+            self.current_start_address = start_address
+        except Exception as e:
+            print(f"Error loading partition: {e}")
+
+    def unload(self):
+        """Unload the current partition from memory."""
+        if self.current_partition is None:
+            print("No partition loaded.")
+            return
+        try:
+            file_size = 1024  # Replace with the actual file size
+            self.mmu.deallocate(start=self.current_start_address, size=file_size)
+            # Simulate unloading the partition from memory (in a real scenario, this would involve freeing up the memory)
+            self.current_partition = None
+            self.current_start_address = None
+        except Exception as e:
+            print(f"Error unloading partition: {e}")
+
+class SimpleNetworkDevice:
+    def __init__(self, mmu):
+        self.mmu = mmu  # Reference to the MMU object
+        self.connected_devices = []  # List of connected devices
+
+    def connect(self, device):
+        """Connect a device to this network device."""
+        self.connected_devices.append(device)
+
+    def disconnect(self, device):
+        """Disconnect a device from this network device."""
+        if device in self.connected_devices:
+            self.connected_devices.remove(device)
+
+    def send(self, data, destination_device):
+        """Send data to another connected device."""
+        if destination_device not in self.connected_devices:
+            print("Error: Destination device is not connected.")
+            return
+        try:
+            # Allocate memory for the data and simulate sending it to the destination device
+            start_address = self.mmu.allocate(len(data))
+            # Deallocate the memory after sending the data (in a real scenario, this would involve freeing up the memory)
+            self.mmu.deallocate(start=start_address, size=len(data))
+        except Exception as e:
+            print(f"Error sending data: {e}")
+
+class SimpleComputer:
+    def __init__(self):
+        self.cpu = SimpleCPU()
+        self.gpu = SimpleGPU()
+        self.mmu = SimpleMMU()
+        self.floppy_drive = SimpleFloppyDrive(self.mmu)
+
+    def load_program(self, program):
+        self.floppy_drive.load(file_size=len(program))
+        for i, instruction in enumerate(program):
+            self.cpu.memory[self.floppy_drive.current_start_address + i] = instruction
+
+    def run_program(self):
+        for i in range(len(self.cpu.memory)):
+            instruction = self.cpu.memory[i]
+            if instruction == 0:  # End of program
+                break
+            self.cpu.run(instruction)
+
+    def display_output(self):
+        self.gpu.clear()
+        # Display the output from the CPU (e.g., draw pixels on the screen)
+        self.gpu.display()
