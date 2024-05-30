@@ -16,9 +16,21 @@ class SimpleCPU:
     def execute(self, opcode, regA, regB, dest_reg):
         if opcode == 0x1:  # ADD operation
             self.registers[dest_reg] = self.registers[regA] + self.registers[regB]
+        elif opcode == 0x2:  # SUB operation
+            self.registers[dest_reg] = self.registers[regA] - self.registers[regB]
+        elif opcode == 0x3:  # AND operation
+            self.registers[dest_reg] = self.registers[regA] & self.registers[regB]
+        elif opcode == 0x4:  # OR operation
+            self.registers[dest_reg] = self.registers[regA] | self.registers[regB]
+        elif opcode == 0x5:  # XOR operation
+            self.registers[dest_reg] = self.registers[regA] ^ self.registers[regB]
+        elif opcode == 0x6:  # JMP operation
+            return regA
+        elif opcode == 0x7:  # JZ operation
+            if self.registers[dest_reg] == 0:
+                return regA
         else:
             raise ValueError(f"Invalid opcode {opcode}")
-
     def run(self, instruction):
         instruction_addr = 0
         self.memory[instruction_addr] = instruction
@@ -182,3 +194,39 @@ class SimpleComputer:
         self.gpu.clear()
         # Display the output from the CPU (e.g., draw pixels on the screen)
         self.gpu.display()
+
+
+class SimpleMIMDProcessor:
+    def __init__(self, mmu, num_cores):
+        self.mmu = mmu  # Reference to the MMU object
+        self.num_cores = num_cores  # Number of cores in the processor
+        self.cores = [SimpleCPU() for _ in range(self.num_cores)]  # List of CPU cores
+    
+    def load_programs(self, programs):
+        """Load multiple programs onto the MIMD processor."""
+        if len(programs) > self.num_cores:
+            print("Error: Too many programs for available cores.")
+            return
+        try:
+            for i, program in enumerate(programs):
+                start_address = self.mmu.allocate(len(program))
+                # Simulate loading the program into memory (in a real scenario, this would involve reading from storage)
+                for j, instruction in enumerate(program):
+                    self.cores[i].memory[start_address + j] = instruction
+        except Exception as e:
+            print(f"Error loading programs: {e}")
+
+    def run_programs(self):
+        """Run multiple programs on the MIMD processor simultaneously."""
+        for i in range(self.num_cores):
+            self.run_core(i)
+
+    def run_core(self, core_index):
+        """Run a single program on a specific CPU core."""
+        cpu = self.cores[core_index]
+        for i in range(len(cpu.memory)):
+            instruction = cpu.memory[i]
+            if instruction == 0:  # End of program
+                break
+            cpu.run(instruction)
+
