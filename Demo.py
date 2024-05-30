@@ -1,4 +1,4 @@
-from SimpleComputer import SimpleCPU, SimpleGPU, SimpleMMU
+from SimpleComputer import SimpleCPU, SimpleGPU, SimpleMMU, simpleFloppyDrive
 cpu = SimpleCPU()
 
 # Set up some initial values in registers
@@ -39,3 +39,16 @@ print(f"Allocated memory from address {start_address} to {start_address + test_s
 # Deallocate the used memory
 mmu.deallocate(start=start_address, size=test_size)
 print("Memory deallocated")
+
+mmu = SimpleMMU(memory_size=4096)  # Create an MMU with 4KB of memory
+floppy = simpleFloppyDrive(mmu)  # Create a floppy drive that interacts with the MMU
+
+# Load a file from the floppy drive into memory
+file_size = 1024  # For example, let's load a file of size 1KB
+floppy.load(file_size)
+print(f"Loaded file {floppy.current_file} at address {floppy.current_start_address}")
+
+
+# Unload the current file from memory
+floppy.unload()
+print("File unloaded")

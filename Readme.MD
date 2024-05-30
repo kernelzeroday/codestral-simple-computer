@@ -1,6 +1,6 @@
 # SimpleComputer Demo
 
-This demo showcases the basic functionalities of the `SimpleComputer` system, which includes a CPU, GPU, and MMU. Below is a quick explanation of the demo code and how it utilizes these components.
+This demo showcases the basic functionalities of the `SimpleComputer` system, which includes a CPU, GPU, MMU, and Floppy Drive. Below is a quick explanation of the demo code and how it utilizes these components.
 
 ## Components
 
@@ -29,6 +29,16 @@ The `SimpleMMU` class manages memory allocation. It has:
   - `allocate(size)`: Allocates a block of memory of the specified size.
   - `deallocate(start, size)`: Deallocates a block of memory starting at the specified address.
 
+### 💾 simpleFloppyDrive
+The `simpleFloppyDrive` class simulates a floppy drive that interacts with the MMU. It has:
+- **Attributes**:
+  - `mmu`: Reference to the MMU object.
+  - `current_file`: The currently loaded file.
+  - `current_start_address`: The start address of the current file in memory.
+- **Methods**:
+  - `load(file_size)`: Loads a file from the floppy drive into memory.
+  - `unload()`: Unloads the current file from memory.
+
 ## Demo Code
 
 ### CPU Operations
@@ -51,4 +61,11 @@ The `SimpleMMU` class manages memory allocation. It has:
 4. **Deallocate Memory**: Deallocate the previously allocated memory.
 5. **Print Deallocation**: Print a message indicating that the memory has been deallocated.
 
-For more details, refer to the [SimpleCPU](#simplecpu), [SimpleGPU](#simplegpu), and [SimpleMMU](#simplemmu) classes in the `SimpleComputer.py` file.
+### Floppy Drive Operations
+1. **Initialize Floppy Drive**: Create an instance of `simpleFloppyDrive` with a reference to the MMU.
+2. **Load File**: Load a file from the floppy drive into memory.
+3. **Print Load**: Print the start address and file name of the loaded file.
+4. **Unload File**: Unload the current file from memory.
+5. **Print Unload**: Print a message indicating that the file has been unloaded.
+
+For more details, refer to the [SimpleCPU](#simplecpu), [SimpleGPU](#simplegpu), [SimpleMMU](#simplemmu), and [simpleFloppyDrive](#simplefloppydrive) classes in the `SimpleComputer.py` file.

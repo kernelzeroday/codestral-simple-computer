@@ -64,4 +64,35 @@ class SimpleMMU:
             self.memory[i] = 0  # Mark the memory as free
         self.free_memory += size            
 
+class simpleFloppyDrive:
+    def __init__(self, mmu):
+        self.mmu = mmu  # Reference to the MMU object
+        self.current_file = None  # The currently loaded file
+        self.current_start_address = None  # The start address of the current file in memory
 
+    def load(self, file_size):
+        """Load a file from the floppy drive into memory."""
+        if self.current_file is not None:
+            print("Error: A file is already loaded.")
+            return
+        try:
+            start_address = self.mmu.allocate(file_size)
+            # Simulate loading the file into memory (in a real scenario, this would involve reading from the floppy drive)
+            self.current_file = "<filename>"  # Replace with actual filename
+            self.current_start_address = start_address
+        except Exception as e:
+            print(f"Error loading file: {e}")
+
+    def unload(self):
+        """Unload the current file from memory."""
+        if self.current_file is None:
+            print("No file loaded.")
+            return
+        try:
+            file_size = 1024  # Replace with the actual file size
+            self.mmu.deallocate(start=self.current_start_address, size=(self.current_start_address + file_size - 1))
+            # Simulate unloading the file from memory (in a real scenario, this would involve freeing up the memory)
+            self.current_file = None
+            self.current_start_address = None
+        except Exception as e:
+            print(f"Error unloading file: {e}")
